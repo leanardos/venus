@@ -1,6 +1,35 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 
 function App() {
+
+  const [payments, setPayments] = useState(null)
+  const fetchData = async () => {
+    const paymentData = await axios.get('http://localhost:8080/payments');
+    const data = Object.keys(paymentData.data.data).map(payment => paymentData.data.data[payment])
+    setPayments(data);
+  }
+
+  console.log(payments);
+
+  const total = (payments) => {
+    return payments?.reduce((total, {transaction_usd}) => total + transaction_usd, 0).toFixed(2)
+  }
+  console.log(total(payments));
+
+  const totalOutgoings = (payments) => {
+    return total(payments?.filter(payment => payment.transaction_usd < 0))
+  }
+
+  const totalIncoming = (payments) => {
+    return total(payments?.filter(payment => payment.transaction_usd > 0))
+  }
+
+  console.log(totalOutgoings(payments))
+
+  useEffect(() => {
+    fetchData()
+  }, []) // To stop runnin forever we have passed empty array here.
   return <Dashboard1 {...dashboard1Data} data-id="126:539:an-component-instance" />;
 }
 
